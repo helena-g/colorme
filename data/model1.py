@@ -2,11 +2,14 @@ import cv2
 from cv2.cv2 import resize
 from tensorflow.python.keras.applications.inception_resnet_v2 import InceptionResNetV2
 from tensorflow.python.keras.engine.input_layer import InputLayer, Input
-from tensorflow.python.keras.layers import Conv2D, UpSampling2D, RepeatVector, Reshape, concatenate, Dropout
+from tensorflow.python.keras.layers import Conv2D, UpSampling2D, RepeatVector, Reshape, concatenate, Dropout, \
+    GaussianNoise
 from tensorflow.python.keras.models import Sequential, Model
 import numpy as np
 import tensorflow as tf
 from keras.applications.inception_resnet_v2 import preprocess_input
+from tensorflow.python.keras.optimizer_v2.rmsprop import RMSProp
+
 
 class Model1:
 
@@ -64,6 +67,7 @@ class Model3:
 
         embed_input = Input(shape=(1000,))
         encoder_input = Input(shape=(256, 256, 1,))
+        #encoder_output=GaussianNoise(0.1)(encoder_input)
         encoder_output = Conv2D(64, (3, 3), activation='relu', padding='same', strides=2)(encoder_input)
         encoder_output = Conv2D(128, (3, 3), activation='relu', padding='same')(encoder_output)
         encoder_output = Conv2D(128, (3, 3), activation='relu', padding='same', strides=2)(encoder_output)
@@ -88,7 +92,7 @@ class Model3:
         decoder_output = UpSampling2D((2, 2))(decoder_output)
 
         model = Model(inputs=[encoder_input, embed_input], outputs=decoder_output)
-        model.compile(optimizer='rmsprop', loss='mse')
+        model.compile(optimizer="adagrad", loss='mse')
         self.model = model
 
 
